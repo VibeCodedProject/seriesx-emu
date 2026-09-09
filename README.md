@@ -107,10 +107,10 @@ each XBE); this negative result is why the HLE has no fabricated heap API.
 
 ## License
 
-This project's code: MIT (see `LICENSE`). The optional Unicorn dependency is
-GPL-2.0 (QEMU-derived); builds that link `libunicorn` are a combined work
-subject to Unicorn's license terms. The vendored `vendor/unicorn/include`
-headers carry Unicorn's upstream licensing. The test fixture
-`tests/lithiumx.xbe` is LithiumX v0.9.7 by Voxel9 (MIT), built with nxdk.
-nxdk-derived research files in `scripts/research/` keep their upstream
+This project's code: GNU GPL v2 or later (see `LICENSE`) — chosen so the
+optional Unicorn CPU core (GPL-2.0, QEMU-derived) is under the same license
+as everything else; no more MIT/GPL combined-work split. The vendored
+`vendor/unicorn/include` headers carry Unicorn's upstream licensing. The test
+fixture `tests/lithiumx.xbe` is LithiumX v0.9.7 by Voxel9 (MIT), built with
+nxdk. nxdk-derived research files in `scripts/research/` keep their upstream
 licenses (CC0-1.0 / MIT); xboxdevwiki snapshots are CC BY-SA.
