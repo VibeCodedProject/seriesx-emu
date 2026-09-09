@@ -1,0 +1,3639 @@
+<!DOCTYPE html>
+<html class="client-nojs" lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<title>Kernel - xboxdevwiki</title>
+<script>document.documentElement.className = document.documentElement.className.replace( /(^|\s)client-nojs(\s|$)/, "$1client-js$2" );</script>
+<script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgCanonicalNamespace":"","wgCanonicalSpecialPageName":false,"wgNamespaceNumber":0,"wgPageName":"Kernel","wgTitle":"Kernel","wgCurRevisionId":6596,"wgRevisionId":6596,"wgArticleId":3678,"wgIsArticle":true,"wgIsRedirect":false,"wgAction":"view","wgUserName":null,"wgUserGroups":["*"],"wgCategories":[],"wgBreakFrames":false,"wgPageContentLanguage":"en","wgPageContentModel":"wikitext","wgSeparatorTransformTable":["",""],"wgDigitTransformTable":["",""],"wgDefaultDateFormat":"dmy","wgMonthNames":["","January","February","March","April","May","June","July","August","September","October","November","December"],"wgMonthNamesShort":["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"wgRelevantPageName":"Kernel","wgRelevantArticleId":3678,"wgRequestId":"41debfc934561cdb0943cda6","wgIsProbablyEditable":false,"wgRestrictionEdit":[],"wgRestrictionMove":[]});mw.loader.state({"site.styles":"ready","noscript":"ready","user.styles":"ready","user.cssprefs":"ready","user":"ready","user.options":"loading","user.tokens":"loading","mediawiki.legacy.shared":"ready","mediawiki.legacy.commonPrint":"ready","mediawiki.sectionAnchor":"ready","mediawiki.skinning.interface":"ready","skins.vector.styles":"ready"});mw.loader.implement("user.options@0j3lz3q",function($,jQuery,require,module){mw.user.options.set({"variant":"en"});});mw.loader.implement("user.tokens@1eii78w",function ( $, jQuery, require, module ) {
+mw.user.tokens.set({"editToken":"+\\","patrolToken":"+\\","watchToken":"+\\","csrfToken":"+\\"});/*@nomin*/;
+
+});mw.loader.load(["mediawiki.page.startup","skins.vector.js"]);});</script>
+<link rel="stylesheet" href="/load.php?debug=false&amp;lang=en&amp;modules=mediawiki.legacy.commonPrint%2Cshared%7Cmediawiki.sectionAnchor%7Cmediawiki.skinning.interface%7Cskins.vector.styles&amp;only=styles&amp;skin=vector"/>
+<script async="" src="/load.php?debug=false&amp;lang=en&amp;modules=startup&amp;only=scripts&amp;skin=vector"></script>
+<meta name="ResourceLoaderDynamicStyles" content=""/>
+<meta name="generator" content="MediaWiki 1.28.0"/>
+<link rel="shortcut icon" href="/favicon.ico"/>
+<link rel="search" type="application/opensearchdescription+xml" href="/opensearch_desc.php" title="xboxdevwiki (en)"/>
+<link rel="EditURI" type="application/rsd+xml" href="https://xboxdevwiki.net/api.php?action=rsd"/>
+<link rel="alternate" type="application/atom+xml" title="xboxdevwiki Atom feed" href="/index.php?title=Special:RecentChanges&amp;feed=atom"/>
+</head>
+<body class="mediawiki ltr sitedir-ltr mw-hide-empty-elt ns-0 ns-subject page-Kernel rootpage-Kernel skin-vector action-view">		<div id="mw-page-base" class="noprint"></div>
+		<div id="mw-head-base" class="noprint"></div>
+		<div id="content" class="mw-body" role="main">
+			<a id="top"></a>
+
+						<div class="mw-indicators">
+</div>
+			<h1 id="firstHeading" class="firstHeading" lang="en">Kernel</h1>
+									<div id="bodyContent" class="mw-body-content">
+									<div id="siteSub">From xboxdevwiki</div>
+								<div id="contentSub"></div>
+												<div id="jump-to-nav" class="mw-jump">
+					Jump to:					<a href="#mw-head">navigation</a>, 					<a href="#p-search">search</a>
+				</div>
+				<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><p>The Xbox kernel is called xboxkrnl.exe. It is closely related to the Windows NT <a href="https://en.wikipedia.org/wiki/Ntoskrnl.exe" class="extiw" title="wikipedia:Ntoskrnl.exe">ntoskrnl.exe</a>.
+Its image base address is always 0x80010000.
+</p>
+<div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#Header_modifications"><span class="tocnumber">1</span> <span class="toctext">Header modifications</span></a></li>
+<li class="toclevel-1 tocsection-2"><a href="#Sections"><span class="tocnumber">2</span> <span class="toctext">Sections</span></a>
+<ul>
+<li class="toclevel-2 tocsection-3"><a href="#.text"><span class="tocnumber">2.1</span> <span class="toctext">.text</span></a></li>
+<li class="toclevel-2 tocsection-4"><a href="#.data"><span class="tocnumber">2.2</span> <span class="toctext">.data</span></a></li>
+<li class="toclevel-2 tocsection-5"><a href="#STICKY"><span class="tocnumber">2.3</span> <span class="toctext">STICKY</span></a></li>
+<li class="toclevel-2 tocsection-6"><a href="#IDEXPRDT"><span class="tocnumber">2.4</span> <span class="toctext">IDEXPRDT</span></a></li>
+<li class="toclevel-2 tocsection-7"><a href="#INIT"><span class="tocnumber">2.5</span> <span class="toctext">INIT</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-8"><a href="#Kernel_exports"><span class="tocnumber">3</span> <span class="toctext">Kernel exports</span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="Header_modifications">Header modifications</span></h2>
+<p>xboxkrnl.exe is a mostly standard exe file.
+However, the MS-DOS header was patched to contain Xbox specific data in the reserved 20 byte block starting at offset 40:
+</p>
+<table class="wikitable">
+<tr>
+<th> Offset </th>
+<th> Meaning
+</th></tr>
+<tr>
+<td>40 </td>
+<td> Size of uninitialized portion of the .data section
+</td></tr>
+<tr>
+<td>44 </td>
+<td> Size of initialized portion of the .data section
+</td></tr>
+<tr>
+<td>48 </td>
+<td> Memory address of initialized portion of the .data section (usually in <a href="/index.php?title=Flash&amp;action=edit&amp;redlink=1" class="new" title="Flash (page does not exist)">Flash</a>). <br /> Used to re-initialize the data section pointed to by the next field. <br /> Note that the pointer might be invalid during normal execution as the Flash might not be mapped at all times.
+</td></tr>
+<tr>
+<td>52 </td>
+<td> Memory address where the .data section is stored (usually the same as in the section header + image base).
+</td></tr></table>
+<h2><span class="mw-headline" id="Sections">Sections</span></h2>
+<p>All sections are identity mapped (meaning file offsets and offsets in RAM match). This is because the kernel is not loaded through a traditional PE / exe loader, but just unpacked into memory.
+</p>
+<h3><span class="mw-headline" id=".text">.text</span></h3>
+<p>The .text section contains the kernel exports.
+</p>
+<h3><span class="mw-headline" id=".data">.data</span></h3>
+<p>The .data section stores initialized and uninitialized data.
+A copy of the initialized portion of this section is usually stored in the <a href="/BIOS" title="BIOS">BIOS</a>.
+</p>
+<h3><span class="mw-headline" id="STICKY">STICKY</span></h3>
+<p>Stores variables which must be preserved across a quick-reboot.
+</p>
+<h3><span class="mw-headline" id="IDEXPRDT">IDEXPRDT</span></h3>
+<p>A Physical Region Descriptor Table (PRDT) for the IDE bus. This section serves as a memory allocation only, it does not have to be initialized when loading the kernel<sup>[<i><a href="https://en.wikipedia.org/wiki/Citation_needed" class="extiw" title="wikipedia:Citation needed"><span title="This claim needs references to reliable sources">citation&#160;needed</span></a></i>]</sup>.
+</p>
+<h3><span class="mw-headline" id="INIT">INIT</span></h3>
+<p>This section is always the last one. It contains the entrypoint of the kernel.
+This does all the cold-boot kernel initialization as described <a href="/Boot_Process#Initialization" title="Boot Process">here</a>.
+Later kernels<sup><i>[<span title="Which revision? right now it appears that *ALL* kernels will discard this">FIXME</span>]</i></sup> will discard this section after initialization.
+INIT also contains the <a href="/Boot_Animation" title="Boot Animation">Boot Animation</a>, so once the kernel has finished booting it can't do a full hardware re-initialization or play the boot animation anymore.
+</p>
+<h2><span class="mw-headline" id="Kernel_exports">Kernel exports</span></h2>
+<table class="wikitable">
+<caption>Kernel exports
+</caption>
+<tr>
+<th>Name
+</th>
+<th>Ordinal
+</th>
+<th>x86 Calling Convention
+</th>
+<th>Notes
+</th></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/AvGetSavedDataAddress&amp;action=edit&amp;redlink=1" class="new" title="Kernel/AvGetSavedDataAddress (page does not exist)">Kernel/AvGetSavedDataAddress</a>
+</td>
+<td>1
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/AvSendTVEncoderOption&amp;action=edit&amp;redlink=1" class="new" title="Kernel/AvSendTVEncoderOption (page does not exist)">Kernel/AvSendTVEncoderOption</a>
+</td>
+<td>2
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/AvSetDisplayMode&amp;action=edit&amp;redlink=1" class="new" title="Kernel/AvSetDisplayMode (page does not exist)">Kernel/AvSetDisplayMode</a>
+</td>
+<td>3
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/AvSetSavedDataAddress&amp;action=edit&amp;redlink=1" class="new" title="Kernel/AvSetSavedDataAddress (page does not exist)">Kernel/AvSetSavedDataAddress</a>
+</td>
+<td>4
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/DbgBreakPoint&amp;action=edit&amp;redlink=1" class="new" title="Kernel/DbgBreakPoint (page does not exist)">Kernel/DbgBreakPoint</a>
+</td>
+<td>5
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/DbgBreakPointWithStatus&amp;action=edit&amp;redlink=1" class="new" title="Kernel/DbgBreakPointWithStatus (page does not exist)">Kernel/DbgBreakPointWithStatus</a>
+</td>
+<td>6
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/DbgLoadImageSymbols&amp;action=edit&amp;redlink=1" class="new" title="Kernel/DbgLoadImageSymbols (page does not exist)">Kernel/DbgLoadImageSymbols</a>
+</td>
+<td>7
+</td>
+<td>stdcall
+</td>
+<td>Devkits only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/DbgPrint&amp;action=edit&amp;redlink=1" class="new" title="Kernel/DbgPrint (page does not exist)">Kernel/DbgPrint</a>
+</td>
+<td>8
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalReadSMCTrayState&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalReadSMCTrayState (page does not exist)">Kernel/HalReadSMCTrayState</a>
+</td>
+<td>9
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/DbgPrompt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/DbgPrompt (page does not exist)">Kernel/DbgPrompt</a>
+</td>
+<td>10
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/DbgUnLoadImageSymbols&amp;action=edit&amp;redlink=1" class="new" title="Kernel/DbgUnLoadImageSymbols (page does not exist)">Kernel/DbgUnLoadImageSymbols</a>
+</td>
+<td>11
+</td>
+<td>stdcall
+</td>
+<td>Devkits only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExAcquireReadWriteLockExclusive&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExAcquireReadWriteLockExclusive (page does not exist)">Kernel/ExAcquireReadWriteLockExclusive</a>
+</td>
+<td>12
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExAcquireReadWriteLockShared&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExAcquireReadWriteLockShared (page does not exist)">Kernel/ExAcquireReadWriteLockShared</a>
+</td>
+<td>13
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExAllocatePool&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExAllocatePool (page does not exist)">Kernel/ExAllocatePool</a>
+</td>
+<td>14
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExAllocatePoolWithTag&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExAllocatePoolWithTag (page does not exist)">Kernel/ExAllocatePoolWithTag</a>
+</td>
+<td>15
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExEventObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExEventObjectType (page does not exist)">Kernel/ExEventObjectType</a>
+</td>
+<td>16
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExFreePool&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExFreePool (page does not exist)">Kernel/ExFreePool</a>
+</td>
+<td>17
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExInitializeReadWriteLock&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExInitializeReadWriteLock (page does not exist)">Kernel/ExInitializeReadWriteLock</a>
+</td>
+<td>18
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExInterlockedAddLargeInteger&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExInterlockedAddLargeInteger (page does not exist)">Kernel/ExInterlockedAddLargeInteger</a>
+</td>
+<td>19
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExInterlockedAddLargeStatistic&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExInterlockedAddLargeStatistic (page does not exist)">Kernel/ExInterlockedAddLargeStatistic</a>
+</td>
+<td>20
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExInterlockedCompareExchange64&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExInterlockedCompareExchange64 (page does not exist)">Kernel/ExInterlockedCompareExchange64</a>
+</td>
+<td>21
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExMutantObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExMutantObjectType (page does not exist)">Kernel/ExMutantObjectType</a>
+</td>
+<td>22
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExQueryPoolBlockSize&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExQueryPoolBlockSize (page does not exist)">Kernel/ExQueryPoolBlockSize</a>
+</td>
+<td>23
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExQueryNonVolatileSetting&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExQueryNonVolatileSetting (page does not exist)">Kernel/ExQueryNonVolatileSetting</a>
+</td>
+<td>24
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExReadWriteRefurbInfo&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExReadWriteRefurbInfo (page does not exist)">Kernel/ExReadWriteRefurbInfo</a>
+</td>
+<td>25
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExRaiseException&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExRaiseException (page does not exist)">Kernel/ExRaiseException</a>
+</td>
+<td>26
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExRaiseStatus&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExRaiseStatus (page does not exist)">Kernel/ExRaiseStatus</a>
+</td>
+<td>27
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExReleaseReadWriteLock&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExReleaseReadWriteLock (page does not exist)">Kernel/ExReleaseReadWriteLock</a>
+</td>
+<td>28
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExSaveNonVolatileSetting&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExSaveNonVolatileSetting (page does not exist)">Kernel/ExSaveNonVolatileSetting</a>
+</td>
+<td>29
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExSemaphoreObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExSemaphoreObjectType (page does not exist)">Kernel/ExSemaphoreObjectType</a>
+</td>
+<td>30
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExTimerObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExTimerObjectType (page does not exist)">Kernel/ExTimerObjectType</a>
+</td>
+<td>31
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExfInterlockedInsertHeadList&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExfInterlockedInsertHeadList (page does not exist)">Kernel/ExfInterlockedInsertHeadList</a>
+</td>
+<td>32
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExfInterlockedInsertTailList&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExfInterlockedInsertTailList (page does not exist)">Kernel/ExfInterlockedInsertTailList</a>
+</td>
+<td>33
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ExfInterlockedRemoveHeadList&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ExfInterlockedRemoveHeadList (page does not exist)">Kernel/ExfInterlockedRemoveHeadList</a>
+</td>
+<td>34
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/FscGetCacheSize&amp;action=edit&amp;redlink=1" class="new" title="Kernel/FscGetCacheSize (page does not exist)">Kernel/FscGetCacheSize</a>
+</td>
+<td>35
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/FscInvalidateIdleBlocks&amp;action=edit&amp;redlink=1" class="new" title="Kernel/FscInvalidateIdleBlocks (page does not exist)">Kernel/FscInvalidateIdleBlocks</a>
+</td>
+<td>36
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/FscSetCacheSize&amp;action=edit&amp;redlink=1" class="new" title="Kernel/FscSetCacheSize (page does not exist)">Kernel/FscSetCacheSize</a>
+</td>
+<td>37
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalClearSoftwareInterrupt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalClearSoftwareInterrupt (page does not exist)">Kernel/HalClearSoftwareInterrupt</a>
+</td>
+<td>38
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalDisableSystemInterrupt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalDisableSystemInterrupt (page does not exist)">Kernel/HalDisableSystemInterrupt</a>
+</td>
+<td>39
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalDiskCachePartitionCount&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalDiskCachePartitionCount (page does not exist)">Kernel/HalDiskCachePartitionCount</a>
+</td>
+<td>40
+</td>
+<td>
+</td>
+<td>Variable: ULONG
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalDiskModelNumber&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalDiskModelNumber (page does not exist)">Kernel/HalDiskModelNumber</a>
+</td>
+<td>41
+</td>
+<td>
+</td>
+<td>Variable: STRING
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalDiskSerialNumber&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalDiskSerialNumber (page does not exist)">Kernel/HalDiskSerialNumber</a>
+</td>
+<td>42
+</td>
+<td>
+</td>
+<td>Variable: STRING
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalEnableSystemInterrupt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalEnableSystemInterrupt (page does not exist)">Kernel/HalEnableSystemInterrupt</a>
+</td>
+<td>43
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalGetInterruptVector&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalGetInterruptVector (page does not exist)">Kernel/HalGetInterruptVector</a>
+</td>
+<td>44
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalReadSMBusValue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalReadSMBusValue (page does not exist)">Kernel/HalReadSMBusValue</a>
+</td>
+<td>45
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalReadWritePCISpace&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalReadWritePCISpace (page does not exist)">Kernel/HalReadWritePCISpace</a>
+</td>
+<td>46
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalRegisterShutdownNotification&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalRegisterShutdownNotification (page does not exist)">Kernel/HalRegisterShutdownNotification</a>
+</td>
+<td>47
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalRequestSoftwareInterrupt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalRequestSoftwareInterrupt (page does not exist)">Kernel/HalRequestSoftwareInterrupt</a>
+</td>
+<td>48
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/HalReturnToFirmware" title="Kernel/HalReturnToFirmware">Kernel/HalReturnToFirmware</a>
+</td>
+<td>49
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalWriteSMBusValue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalWriteSMBusValue (page does not exist)">Kernel/HalWriteSMBusValue</a>
+</td>
+<td>50
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/InterlockedCompareExchange&amp;action=edit&amp;redlink=1" class="new" title="Kernel/InterlockedCompareExchange (page does not exist)">Kernel/InterlockedCompareExchange</a>
+</td>
+<td>51
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/InterlockedDecrement&amp;action=edit&amp;redlink=1" class="new" title="Kernel/InterlockedDecrement (page does not exist)">Kernel/InterlockedDecrement</a>
+</td>
+<td>52
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/InterlockedIncrement&amp;action=edit&amp;redlink=1" class="new" title="Kernel/InterlockedIncrement (page does not exist)">Kernel/InterlockedIncrement</a>
+</td>
+<td>53
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/InterlockedExchange&amp;action=edit&amp;redlink=1" class="new" title="Kernel/InterlockedExchange (page does not exist)">Kernel/InterlockedExchange</a>
+</td>
+<td>54
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/InterlockedExchangeAdd&amp;action=edit&amp;redlink=1" class="new" title="Kernel/InterlockedExchangeAdd (page does not exist)">Kernel/InterlockedExchangeAdd</a>
+</td>
+<td>55
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/InterlockedFlushSList&amp;action=edit&amp;redlink=1" class="new" title="Kernel/InterlockedFlushSList (page does not exist)">Kernel/InterlockedFlushSList</a>
+</td>
+<td>56
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/InterlockedPopEntrySList&amp;action=edit&amp;redlink=1" class="new" title="Kernel/InterlockedPopEntrySList (page does not exist)">Kernel/InterlockedPopEntrySList</a>
+</td>
+<td>57
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/InterlockedPushEntrySList&amp;action=edit&amp;redlink=1" class="new" title="Kernel/InterlockedPushEntrySList (page does not exist)">Kernel/InterlockedPushEntrySList</a>
+</td>
+<td>58
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoAllocateIrp&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoAllocateIrp (page does not exist)">Kernel/IoAllocateIrp</a>
+</td>
+<td>59
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoBuildAsynchronousFsdRequest&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoBuildAsynchronousFsdRequest (page does not exist)">Kernel/IoBuildAsynchronousFsdRequest</a>
+</td>
+<td>60
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoBuildDeviceIoControlRequest&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoBuildDeviceIoControlRequest (page does not exist)">Kernel/IoBuildDeviceIoControlRequest</a>
+</td>
+<td>61
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoBuildSynchronousFsdRequest&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoBuildSynchronousFsdRequest (page does not exist)">Kernel/IoBuildSynchronousFsdRequest</a>
+</td>
+<td>62
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoCheckShareAccess&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoCheckShareAccess (page does not exist)">Kernel/IoCheckShareAccess</a>
+</td>
+<td>63
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoCompletionObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoCompletionObjectType (page does not exist)">Kernel/IoCompletionObjectType</a>
+</td>
+<td>64
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoCreateDevice&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoCreateDevice (page does not exist)">Kernel/IoCreateDevice</a>
+</td>
+<td>65
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoCreateFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoCreateFile (page does not exist)">Kernel/IoCreateFile</a>
+</td>
+<td>66
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoCreateSymbolicLink&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoCreateSymbolicLink (page does not exist)">Kernel/IoCreateSymbolicLink</a>
+</td>
+<td>67
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoDeleteDevice&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoDeleteDevice (page does not exist)">Kernel/IoDeleteDevice</a>
+</td>
+<td>68
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoDeleteSymbolicLink&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoDeleteSymbolicLink (page does not exist)">Kernel/IoDeleteSymbolicLink</a>
+</td>
+<td>69
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoDeviceObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoDeviceObjectType (page does not exist)">Kernel/IoDeviceObjectType</a>
+</td>
+<td>70
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoFileObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoFileObjectType (page does not exist)">Kernel/IoFileObjectType</a>
+</td>
+<td>71
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoFreeIrp&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoFreeIrp (page does not exist)">Kernel/IoFreeIrp</a>
+</td>
+<td>72
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoInitializeIrp&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoInitializeIrp (page does not exist)">Kernel/IoInitializeIrp</a>
+</td>
+<td>73
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoInvalidDeviceRequest&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoInvalidDeviceRequest (page does not exist)">Kernel/IoInvalidDeviceRequest</a>
+</td>
+<td>74
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoQueryFileInformation&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoQueryFileInformation (page does not exist)">Kernel/IoQueryFileInformation</a>
+</td>
+<td>75
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoQueryVolumeInformation&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoQueryVolumeInformation (page does not exist)">Kernel/IoQueryVolumeInformation</a>
+</td>
+<td>76
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoQueueThreadIrp&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoQueueThreadIrp (page does not exist)">Kernel/IoQueueThreadIrp</a>
+</td>
+<td>77
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoRemoveShareAccess&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoRemoveShareAccess (page does not exist)">Kernel/IoRemoveShareAccess</a>
+</td>
+<td>78
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoSetIoCompletion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoSetIoCompletion (page does not exist)">Kernel/IoSetIoCompletion</a>
+</td>
+<td>79
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoSetShareAccess&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoSetShareAccess (page does not exist)">Kernel/IoSetShareAccess</a>
+</td>
+<td>80
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoStartNextPacket&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoStartNextPacket (page does not exist)">Kernel/IoStartNextPacket</a>
+</td>
+<td>81
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoStartNextPacketByKey&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoStartNextPacketByKey (page does not exist)">Kernel/IoStartNextPacketByKey</a>
+</td>
+<td>82
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoStartPacket&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoStartPacket (page does not exist)">Kernel/IoStartPacket</a>
+</td>
+<td>83
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoSynchronousDeviceIoControlRequest&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoSynchronousDeviceIoControlRequest (page does not exist)">Kernel/IoSynchronousDeviceIoControlRequest</a>
+</td>
+<td>84
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoSynchronousFsdRequest&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoSynchronousFsdRequest (page does not exist)">Kernel/IoSynchronousFsdRequest</a>
+</td>
+<td>85
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IofCallDriver&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IofCallDriver (page does not exist)">Kernel/IofCallDriver</a>
+</td>
+<td>86
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IofCompleteRequest&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IofCompleteRequest (page does not exist)">Kernel/IofCompleteRequest</a>
+</td>
+<td>87
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KdDebuggerEnabled&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KdDebuggerEnabled (page does not exist)">Kernel/KdDebuggerEnabled</a>
+</td>
+<td>88
+</td>
+<td>
+</td>
+<td>Variable: BOOLEAN
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KdDebuggerNotPresent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KdDebuggerNotPresent (page does not exist)">Kernel/KdDebuggerNotPresent</a>
+</td>
+<td>89
+</td>
+<td>
+</td>
+<td>Variable: BOOLEAN
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoDismountVolume&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoDismountVolume (page does not exist)">Kernel/IoDismountVolume</a>
+</td>
+<td>90
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoDismountVolumeByName&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoDismountVolumeByName (page does not exist)">Kernel/IoDismountVolumeByName</a>
+</td>
+<td>91
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeAlertResumeThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeAlertResumeThread (page does not exist)">Kernel/KeAlertResumeThread</a>
+</td>
+<td>92
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeAlertThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeAlertThread (page does not exist)">Kernel/KeAlertThread</a>
+</td>
+<td>93
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeBoostPriorityThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeBoostPriorityThread (page does not exist)">Kernel/KeBoostPriorityThread</a>
+</td>
+<td>94
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeBugCheck&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeBugCheck (page does not exist)">Kernel/KeBugCheck</a>
+</td>
+<td>95
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeBugCheckEx&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeBugCheckEx (page does not exist)">Kernel/KeBugCheckEx</a>
+</td>
+<td>96
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeCancelTimer&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeCancelTimer (page does not exist)">Kernel/KeCancelTimer</a>
+</td>
+<td>97
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeConnectInterrupt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeConnectInterrupt (page does not exist)">Kernel/KeConnectInterrupt</a>
+</td>
+<td>98
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeDelayExecutionThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeDelayExecutionThread (page does not exist)">Kernel/KeDelayExecutionThread</a>
+</td>
+<td>99
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeDisconnectInterrupt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeDisconnectInterrupt (page does not exist)">Kernel/KeDisconnectInterrupt</a>
+</td>
+<td>100
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeEnterCriticalRegion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeEnterCriticalRegion (page does not exist)">Kernel/KeEnterCriticalRegion</a>
+</td>
+<td>101
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmGlobalData&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmGlobalData (page does not exist)">Kernel/MmGlobalData</a>
+</td>
+<td>102
+</td>
+<td>
+</td>
+<td>Variable: MMGLOBALDATA
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeGetCurrentIrql&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeGetCurrentIrql (page does not exist)">Kernel/KeGetCurrentIrql</a>
+</td>
+<td>103
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeGetCurrentThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeGetCurrentThread (page does not exist)">Kernel/KeGetCurrentThread</a>
+</td>
+<td>104
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInitializeApc&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInitializeApc (page does not exist)">Kernel/KeInitializeApc</a>
+</td>
+<td>105
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInitializeDeviceQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInitializeDeviceQueue (page does not exist)">Kernel/KeInitializeDeviceQueue</a>
+</td>
+<td>106
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInitializeDpc&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInitializeDpc (page does not exist)">Kernel/KeInitializeDpc</a>
+</td>
+<td>107
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInitializeEvent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInitializeEvent (page does not exist)">Kernel/KeInitializeEvent</a>
+</td>
+<td>108
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInitializeInterrupt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInitializeInterrupt (page does not exist)">Kernel/KeInitializeInterrupt</a>
+</td>
+<td>109
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInitializeMutant&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInitializeMutant (page does not exist)">Kernel/KeInitializeMutant</a>
+</td>
+<td>110
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInitializeQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInitializeQueue (page does not exist)">Kernel/KeInitializeQueue</a>
+</td>
+<td>111
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInitializeSemaphore&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInitializeSemaphore (page does not exist)">Kernel/KeInitializeSemaphore</a>
+</td>
+<td>112
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInitializeTimerEx&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInitializeTimerEx (page does not exist)">Kernel/KeInitializeTimerEx</a>
+</td>
+<td>113
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInsertByKeyDeviceQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInsertByKeyDeviceQueue (page does not exist)">Kernel/KeInsertByKeyDeviceQueue</a>
+</td>
+<td>114
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInsertDeviceQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInsertDeviceQueue (page does not exist)">Kernel/KeInsertDeviceQueue</a>
+</td>
+<td>115
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInsertHeadQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInsertHeadQueue (page does not exist)">Kernel/KeInsertHeadQueue</a>
+</td>
+<td>116
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInsertQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInsertQueue (page does not exist)">Kernel/KeInsertQueue</a>
+</td>
+<td>117
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInsertQueueApc&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInsertQueueApc (page does not exist)">Kernel/KeInsertQueueApc</a>
+</td>
+<td>118
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInsertQueueDpc&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInsertQueueDpc (page does not exist)">Kernel/KeInsertQueueDpc</a>
+</td>
+<td>119
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeInterruptTime&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeInterruptTime (page does not exist)">Kernel/KeInterruptTime</a>
+</td>
+<td>120
+</td>
+<td>
+</td>
+<td>Variable: KSYSTEM_TIME
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeIsExecutingDpc&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeIsExecutingDpc (page does not exist)">Kernel/KeIsExecutingDpc</a>
+</td>
+<td>121
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeLeaveCriticalRegion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeLeaveCriticalRegion (page does not exist)">Kernel/KeLeaveCriticalRegion</a>
+</td>
+<td>122
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KePulseEvent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KePulseEvent (page does not exist)">Kernel/KePulseEvent</a>
+</td>
+<td>123
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeQueryBasePriorityThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeQueryBasePriorityThread (page does not exist)">Kernel/KeQueryBasePriorityThread</a>
+</td>
+<td>124
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeQueryInterruptTime&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeQueryInterruptTime (page does not exist)">Kernel/KeQueryInterruptTime</a>
+</td>
+<td>125
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeQueryPerformanceCounter&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeQueryPerformanceCounter (page does not exist)">Kernel/KeQueryPerformanceCounter</a>
+</td>
+<td>126
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeQueryPerformanceFrequency&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeQueryPerformanceFrequency (page does not exist)">Kernel/KeQueryPerformanceFrequency</a>
+</td>
+<td>127
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeQuerySystemTime&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeQuerySystemTime (page does not exist)">Kernel/KeQuerySystemTime</a>
+</td>
+<td>128
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeRaiseIrqlToDpcLevel&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeRaiseIrqlToDpcLevel (page does not exist)">Kernel/KeRaiseIrqlToDpcLevel</a>
+</td>
+<td>129
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeRaiseIrqlToSynchLevel&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeRaiseIrqlToSynchLevel (page does not exist)">Kernel/KeRaiseIrqlToSynchLevel</a>
+</td>
+<td>130
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeReleaseMutant&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeReleaseMutant (page does not exist)">Kernel/KeReleaseMutant</a>
+</td>
+<td>131
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeReleaseSemaphore&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeReleaseSemaphore (page does not exist)">Kernel/KeReleaseSemaphore</a>
+</td>
+<td>132
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeRemoveByKeyDeviceQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeRemoveByKeyDeviceQueue (page does not exist)">Kernel/KeRemoveByKeyDeviceQueue</a>
+</td>
+<td>133
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeRemoveDeviceQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeRemoveDeviceQueue (page does not exist)">Kernel/KeRemoveDeviceQueue</a>
+</td>
+<td>134
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeRemoveEntryDeviceQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeRemoveEntryDeviceQueue (page does not exist)">Kernel/KeRemoveEntryDeviceQueue</a>
+</td>
+<td>135
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeRemoveQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeRemoveQueue (page does not exist)">Kernel/KeRemoveQueue</a>
+</td>
+<td>136
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeRemoveQueueDpc&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeRemoveQueueDpc (page does not exist)">Kernel/KeRemoveQueueDpc</a>
+</td>
+<td>137
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeResetEvent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeResetEvent (page does not exist)">Kernel/KeResetEvent</a>
+</td>
+<td>138
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeRestoreFloatingPointState&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeRestoreFloatingPointState (page does not exist)">Kernel/KeRestoreFloatingPointState</a>
+</td>
+<td>139
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeResumeThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeResumeThread (page does not exist)">Kernel/KeResumeThread</a>
+</td>
+<td>140
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeRundownQueue&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeRundownQueue (page does not exist)">Kernel/KeRundownQueue</a>
+</td>
+<td>141
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSaveFloatingPointState&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSaveFloatingPointState (page does not exist)">Kernel/KeSaveFloatingPointState</a>
+</td>
+<td>142
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSetBasePriorityThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSetBasePriorityThread (page does not exist)">Kernel/KeSetBasePriorityThread</a>
+</td>
+<td>143
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSetDisableBoostThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSetDisableBoostThread (page does not exist)">Kernel/KeSetDisableBoostThread</a>
+</td>
+<td>144
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSetEvent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSetEvent (page does not exist)">Kernel/KeSetEvent</a>
+</td>
+<td>145
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSetEventBoostPriority&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSetEventBoostPriority (page does not exist)">Kernel/KeSetEventBoostPriority</a>
+</td>
+<td>146
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSetPriorityProcess&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSetPriorityProcess (page does not exist)">Kernel/KeSetPriorityProcess</a>
+</td>
+<td>147
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSetPriorityThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSetPriorityThread (page does not exist)">Kernel/KeSetPriorityThread</a>
+</td>
+<td>148
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSetTimer&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSetTimer (page does not exist)">Kernel/KeSetTimer</a>
+</td>
+<td>149
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSetTimerEx&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSetTimerEx (page does not exist)">Kernel/KeSetTimerEx</a>
+</td>
+<td>150
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeStallExecutionProcessor&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeStallExecutionProcessor (page does not exist)">Kernel/KeStallExecutionProcessor</a>
+</td>
+<td>151
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSuspendThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSuspendThread (page does not exist)">Kernel/KeSuspendThread</a>
+</td>
+<td>152
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSynchronizeExecution&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSynchronizeExecution (page does not exist)">Kernel/KeSynchronizeExecution</a>
+</td>
+<td>153
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeSystemTime&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeSystemTime (page does not exist)">Kernel/KeSystemTime</a>
+</td>
+<td>154
+</td>
+<td>
+</td>
+<td>Variable: KSYSTEM_TIME
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeTestAlertThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeTestAlertThread (page does not exist)">Kernel/KeTestAlertThread</a>
+</td>
+<td>155
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeTickCount&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeTickCount (page does not exist)">Kernel/KeTickCount</a>
+</td>
+<td>156
+</td>
+<td>
+</td>
+<td>Variable: ULONG
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeTimeIncrement&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeTimeIncrement (page does not exist)">Kernel/KeTimeIncrement</a>
+</td>
+<td>157
+</td>
+<td>
+</td>
+<td>Variable: ULONG
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeWaitForMultipleObjects&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeWaitForMultipleObjects (page does not exist)">Kernel/KeWaitForMultipleObjects</a>
+</td>
+<td>158
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KeWaitForSingleObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KeWaitForSingleObject (page does not exist)">Kernel/KeWaitForSingleObject</a>
+</td>
+<td>159
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KfRaiseIrql&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KfRaiseIrql (page does not exist)">Kernel/KfRaiseIrql</a>
+</td>
+<td>160
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KfLowerIrql&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KfLowerIrql (page does not exist)">Kernel/KfLowerIrql</a>
+</td>
+<td>161
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KiBugCheckData&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KiBugCheckData (page does not exist)">Kernel/KiBugCheckData</a>
+</td>
+<td>162
+</td>
+<td>
+</td>
+<td>Variable: ULONG_PTR[5]
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/KiUnlockDispatcherDatabase&amp;action=edit&amp;redlink=1" class="new" title="Kernel/KiUnlockDispatcherDatabase (page does not exist)">Kernel/KiUnlockDispatcherDatabase</a>
+</td>
+<td>163
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/LaunchDataPage" title="Kernel/LaunchDataPage">Kernel/LaunchDataPage</a>
+</td>
+<td>164
+</td>
+<td>
+</td>
+<td>Variable: PLAUNCH_DATA_PAGE
+</td></tr>
+<tr>
+<td><a href="/Kernel/MmAllocateContiguousMemory" title="Kernel/MmAllocateContiguousMemory">Kernel/MmAllocateContiguousMemory</a>
+</td>
+<td>165
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmAllocateContiguousMemoryEx&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmAllocateContiguousMemoryEx (page does not exist)">Kernel/MmAllocateContiguousMemoryEx</a>
+</td>
+<td>166
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmAllocateSystemMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmAllocateSystemMemory (page does not exist)">Kernel/MmAllocateSystemMemory</a>
+</td>
+<td>167
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmClaimGpuInstanceMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmClaimGpuInstanceMemory (page does not exist)">Kernel/MmClaimGpuInstanceMemory</a>
+</td>
+<td>168
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmCreateKernelStack&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmCreateKernelStack (page does not exist)">Kernel/MmCreateKernelStack</a>
+</td>
+<td>169
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmDeleteKernelStack&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmDeleteKernelStack (page does not exist)">Kernel/MmDeleteKernelStack</a>
+</td>
+<td>170
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmFreeContiguousMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmFreeContiguousMemory (page does not exist)">Kernel/MmFreeContiguousMemory</a>
+</td>
+<td>171
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmFreeSystemMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmFreeSystemMemory (page does not exist)">Kernel/MmFreeSystemMemory</a>
+</td>
+<td>172
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmGetPhysicalAddress&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmGetPhysicalAddress (page does not exist)">Kernel/MmGetPhysicalAddress</a>
+</td>
+<td>173
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmIsAddressValid&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmIsAddressValid (page does not exist)">Kernel/MmIsAddressValid</a>
+</td>
+<td>174
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmLockUnlockBufferPages&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmLockUnlockBufferPages (page does not exist)">Kernel/MmLockUnlockBufferPages</a>
+</td>
+<td>175
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmLockUnlockPhysicalPage&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmLockUnlockPhysicalPage (page does not exist)">Kernel/MmLockUnlockPhysicalPage</a>
+</td>
+<td>176
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmMapIoSpace&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmMapIoSpace (page does not exist)">Kernel/MmMapIoSpace</a>
+</td>
+<td>177
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmPersistContiguousMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmPersistContiguousMemory (page does not exist)">Kernel/MmPersistContiguousMemory</a>
+</td>
+<td>178
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmQueryAddressProtect&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmQueryAddressProtect (page does not exist)">Kernel/MmQueryAddressProtect</a>
+</td>
+<td>179
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmQueryAllocationSize&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmQueryAllocationSize (page does not exist)">Kernel/MmQueryAllocationSize</a>
+</td>
+<td>180
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmQueryStatistics&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmQueryStatistics (page does not exist)">Kernel/MmQueryStatistics</a>
+</td>
+<td>181
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmSetAddressProtect&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmSetAddressProtect (page does not exist)">Kernel/MmSetAddressProtect</a>
+</td>
+<td>182
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmUnmapIoSpace&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmUnmapIoSpace (page does not exist)">Kernel/MmUnmapIoSpace</a>
+</td>
+<td>183
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtAllocateVirtualMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtAllocateVirtualMemory (page does not exist)">Kernel/NtAllocateVirtualMemory</a>
+</td>
+<td>184
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtCancelTimer&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtCancelTimer (page does not exist)">Kernel/NtCancelTimer</a>
+</td>
+<td>185
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtClearEvent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtClearEvent (page does not exist)">Kernel/NtClearEvent</a>
+</td>
+<td>186
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtClose&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtClose (page does not exist)">Kernel/NtClose</a>
+</td>
+<td>187
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtCreateDirectoryObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtCreateDirectoryObject (page does not exist)">Kernel/NtCreateDirectoryObject</a>
+</td>
+<td>188
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtCreateEvent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtCreateEvent (page does not exist)">Kernel/NtCreateEvent</a>
+</td>
+<td>189
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtCreateFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtCreateFile (page does not exist)">Kernel/NtCreateFile</a>
+</td>
+<td>190
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtCreateIoCompletion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtCreateIoCompletion (page does not exist)">Kernel/NtCreateIoCompletion</a>
+</td>
+<td>191
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtCreateMutant&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtCreateMutant (page does not exist)">Kernel/NtCreateMutant</a>
+</td>
+<td>192
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtCreateSemaphore&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtCreateSemaphore (page does not exist)">Kernel/NtCreateSemaphore</a>
+</td>
+<td>193
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtCreateTimer&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtCreateTimer (page does not exist)">Kernel/NtCreateTimer</a>
+</td>
+<td>194
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtDeleteFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtDeleteFile (page does not exist)">Kernel/NtDeleteFile</a>
+</td>
+<td>195
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtDeviceIoControlFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtDeviceIoControlFile (page does not exist)">Kernel/NtDeviceIoControlFile</a>
+</td>
+<td>196
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtDuplicateObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtDuplicateObject (page does not exist)">Kernel/NtDuplicateObject</a>
+</td>
+<td>197
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtFlushBuffersFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtFlushBuffersFile (page does not exist)">Kernel/NtFlushBuffersFile</a>
+</td>
+<td>198
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtFreeVirtualMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtFreeVirtualMemory (page does not exist)">Kernel/NtFreeVirtualMemory</a>
+</td>
+<td>199
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtFsControlFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtFsControlFile (page does not exist)">Kernel/NtFsControlFile</a>
+</td>
+<td>200
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtOpenDirectoryObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtOpenDirectoryObject (page does not exist)">Kernel/NtOpenDirectoryObject</a>
+</td>
+<td>201
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtOpenFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtOpenFile (page does not exist)">Kernel/NtOpenFile</a>
+</td>
+<td>202
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtOpenSymbolicLinkObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtOpenSymbolicLinkObject (page does not exist)">Kernel/NtOpenSymbolicLinkObject</a>
+</td>
+<td>203
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtProtectVirtualMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtProtectVirtualMemory (page does not exist)">Kernel/NtProtectVirtualMemory</a>
+</td>
+<td>204
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtPulseEvent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtPulseEvent (page does not exist)">Kernel/NtPulseEvent</a>
+</td>
+<td>205
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueueApcThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueueApcThread (page does not exist)">Kernel/NtQueueApcThread</a>
+</td>
+<td>206
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueryDirectoryFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueryDirectoryFile (page does not exist)">Kernel/NtQueryDirectoryFile</a>
+</td>
+<td>207
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueryDirectoryObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueryDirectoryObject (page does not exist)">Kernel/NtQueryDirectoryObject</a>
+</td>
+<td>208
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueryEvent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueryEvent (page does not exist)">Kernel/NtQueryEvent</a>
+</td>
+<td>209
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueryFullAttributesFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueryFullAttributesFile (page does not exist)">Kernel/NtQueryFullAttributesFile</a>
+</td>
+<td>210
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/NtQueryInformationFile" title="Kernel/NtQueryInformationFile">Kernel/NtQueryInformationFile</a>
+</td>
+<td>211
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueryIoCompletion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueryIoCompletion (page does not exist)">Kernel/NtQueryIoCompletion</a>
+</td>
+<td>212
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueryMutant&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueryMutant (page does not exist)">Kernel/NtQueryMutant</a>
+</td>
+<td>213
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQuerySemaphore&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQuerySemaphore (page does not exist)">Kernel/NtQuerySemaphore</a>
+</td>
+<td>214
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQuerySymbolicLinkObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQuerySymbolicLinkObject (page does not exist)">Kernel/NtQuerySymbolicLinkObject</a>
+</td>
+<td>215
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueryTimer&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueryTimer (page does not exist)">Kernel/NtQueryTimer</a>
+</td>
+<td>216
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueryVirtualMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueryVirtualMemory (page does not exist)">Kernel/NtQueryVirtualMemory</a>
+</td>
+<td>217
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtQueryVolumeInformationFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtQueryVolumeInformationFile (page does not exist)">Kernel/NtQueryVolumeInformationFile</a>
+</td>
+<td>218
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtReadFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtReadFile (page does not exist)">Kernel/NtReadFile</a>
+</td>
+<td>219
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtReadFileScatter&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtReadFileScatter (page does not exist)">Kernel/NtReadFileScatter</a>
+</td>
+<td>220
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtReleaseMutant&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtReleaseMutant (page does not exist)">Kernel/NtReleaseMutant</a>
+</td>
+<td>221
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtReleaseSemaphore&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtReleaseSemaphore (page does not exist)">Kernel/NtReleaseSemaphore</a>
+</td>
+<td>222
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtRemoveIoCompletion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtRemoveIoCompletion (page does not exist)">Kernel/NtRemoveIoCompletion</a>
+</td>
+<td>223
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtResumeThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtResumeThread (page does not exist)">Kernel/NtResumeThread</a>
+</td>
+<td>224
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtSetEvent&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtSetEvent (page does not exist)">Kernel/NtSetEvent</a>
+</td>
+<td>225
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/NtSetInformationFile" title="Kernel/NtSetInformationFile">Kernel/NtSetInformationFile</a>
+</td>
+<td>226
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtSetIoCompletion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtSetIoCompletion (page does not exist)">Kernel/NtSetIoCompletion</a>
+</td>
+<td>227
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtSetSystemTime&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtSetSystemTime (page does not exist)">Kernel/NtSetSystemTime</a>
+</td>
+<td>228
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtSetTimerEx&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtSetTimerEx (page does not exist)">Kernel/NtSetTimerEx</a>
+</td>
+<td>229
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtSignalAndWaitForSingleObjectEx&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtSignalAndWaitForSingleObjectEx (page does not exist)">Kernel/NtSignalAndWaitForSingleObjectEx</a>
+</td>
+<td>230
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtSuspendThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtSuspendThread (page does not exist)">Kernel/NtSuspendThread</a>
+</td>
+<td>231
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtUserIoApcDispatcher&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtUserIoApcDispatcher (page does not exist)">Kernel/NtUserIoApcDispatcher</a>
+</td>
+<td>232
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtWaitForSingleObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtWaitForSingleObject (page does not exist)">Kernel/NtWaitForSingleObject</a>
+</td>
+<td>233
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtWaitForSingleObjectEx&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtWaitForSingleObjectEx (page does not exist)">Kernel/NtWaitForSingleObjectEx</a>
+</td>
+<td>234
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtWaitForMultipleObjectsEx&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtWaitForMultipleObjectsEx (page does not exist)">Kernel/NtWaitForMultipleObjectsEx</a>
+</td>
+<td>235
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtWriteFile&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtWriteFile (page does not exist)">Kernel/NtWriteFile</a>
+</td>
+<td>236
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtWriteFileGather&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtWriteFileGather (page does not exist)">Kernel/NtWriteFileGather</a>
+</td>
+<td>237
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/NtYieldExecution&amp;action=edit&amp;redlink=1" class="new" title="Kernel/NtYieldExecution (page does not exist)">Kernel/NtYieldExecution</a>
+</td>
+<td>238
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObCreateObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObCreateObject (page does not exist)">Kernel/ObCreateObject</a>
+</td>
+<td>239
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObDirectoryObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObDirectoryObjectType (page does not exist)">Kernel/ObDirectoryObjectType</a>
+</td>
+<td>240
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObInsertObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObInsertObject (page does not exist)">Kernel/ObInsertObject</a>
+</td>
+<td>241
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObMakeTemporaryObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObMakeTemporaryObject (page does not exist)">Kernel/ObMakeTemporaryObject</a>
+</td>
+<td>242
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObOpenObjectByName&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObOpenObjectByName (page does not exist)">Kernel/ObOpenObjectByName</a>
+</td>
+<td>243
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObOpenObjectByPointer&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObOpenObjectByPointer (page does not exist)">Kernel/ObOpenObjectByPointer</a>
+</td>
+<td>244
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObpObjectHandleTable&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObpObjectHandleTable (page does not exist)">Kernel/ObpObjectHandleTable</a>
+</td>
+<td>245
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_HANDLE_TABLE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObReferenceObjectByHandle&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObReferenceObjectByHandle (page does not exist)">Kernel/ObReferenceObjectByHandle</a>
+</td>
+<td>246
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObReferenceObjectByName&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObReferenceObjectByName (page does not exist)">Kernel/ObReferenceObjectByName</a>
+</td>
+<td>247
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObReferenceObjectByPointer&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObReferenceObjectByPointer (page does not exist)">Kernel/ObReferenceObjectByPointer</a>
+</td>
+<td>248
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObSymbolicLinkObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObSymbolicLinkObjectType (page does not exist)">Kernel/ObSymbolicLinkObjectType</a>
+</td>
+<td>249
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObfDereferenceObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObfDereferenceObject (page does not exist)">Kernel/ObfDereferenceObject</a>
+</td>
+<td>250
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/ObfReferenceObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/ObfReferenceObject (page does not exist)">Kernel/ObfReferenceObject</a>
+</td>
+<td>251
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/PhyGetLinkState&amp;action=edit&amp;redlink=1" class="new" title="Kernel/PhyGetLinkState (page does not exist)">Kernel/PhyGetLinkState</a>
+</td>
+<td>252
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/PhyInitialize&amp;action=edit&amp;redlink=1" class="new" title="Kernel/PhyInitialize (page does not exist)">Kernel/PhyInitialize</a>
+</td>
+<td>253
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/PsCreateSystemThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/PsCreateSystemThread (page does not exist)">Kernel/PsCreateSystemThread</a>
+</td>
+<td>254
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/PsCreateSystemThreadEx&amp;action=edit&amp;redlink=1" class="new" title="Kernel/PsCreateSystemThreadEx (page does not exist)">Kernel/PsCreateSystemThreadEx</a>
+</td>
+<td>255
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/PsQueryStatistics&amp;action=edit&amp;redlink=1" class="new" title="Kernel/PsQueryStatistics (page does not exist)">Kernel/PsQueryStatistics</a>
+</td>
+<td>256
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/PsSetCreateThreadNotifyRoutine&amp;action=edit&amp;redlink=1" class="new" title="Kernel/PsSetCreateThreadNotifyRoutine (page does not exist)">Kernel/PsSetCreateThreadNotifyRoutine</a>
+</td>
+<td>257
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/PsTerminateSystemThread&amp;action=edit&amp;redlink=1" class="new" title="Kernel/PsTerminateSystemThread (page does not exist)">Kernel/PsTerminateSystemThread</a>
+</td>
+<td>258
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/PsThreadObjectType&amp;action=edit&amp;redlink=1" class="new" title="Kernel/PsThreadObjectType (page does not exist)">Kernel/PsThreadObjectType</a>
+</td>
+<td>259
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_TYPE
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlAnsiStringToUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlAnsiStringToUnicodeString (page does not exist)">Kernel/RtlAnsiStringToUnicodeString</a>
+</td>
+<td>260
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlAppendStringToString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlAppendStringToString (page does not exist)">Kernel/RtlAppendStringToString</a>
+</td>
+<td>261
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlAppendUnicodeStringToString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlAppendUnicodeStringToString (page does not exist)">Kernel/RtlAppendUnicodeStringToString</a>
+</td>
+<td>262
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlAppendUnicodeToString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlAppendUnicodeToString (page does not exist)">Kernel/RtlAppendUnicodeToString</a>
+</td>
+<td>263
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlAssert&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlAssert (page does not exist)">Kernel/RtlAssert</a>
+</td>
+<td>264
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCaptureContext&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCaptureContext (page does not exist)">Kernel/RtlCaptureContext</a>
+</td>
+<td>265
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCaptureStackBackTrace&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCaptureStackBackTrace (page does not exist)">Kernel/RtlCaptureStackBackTrace</a>
+</td>
+<td>266
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCharToInteger&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCharToInteger (page does not exist)">Kernel/RtlCharToInteger</a>
+</td>
+<td>267
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCompareMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCompareMemory (page does not exist)">Kernel/RtlCompareMemory</a>
+</td>
+<td>268
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCompareMemoryUlong&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCompareMemoryUlong (page does not exist)">Kernel/RtlCompareMemoryUlong</a>
+</td>
+<td>269
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCompareString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCompareString (page does not exist)">Kernel/RtlCompareString</a>
+</td>
+<td>270
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCompareUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCompareUnicodeString (page does not exist)">Kernel/RtlCompareUnicodeString</a>
+</td>
+<td>271
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCopyString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCopyString (page does not exist)">Kernel/RtlCopyString</a>
+</td>
+<td>272
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCopyUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCopyUnicodeString (page does not exist)">Kernel/RtlCopyUnicodeString</a>
+</td>
+<td>273
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlCreateUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlCreateUnicodeString (page does not exist)">Kernel/RtlCreateUnicodeString</a>
+</td>
+<td>274
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlDowncaseUnicodeChar&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlDowncaseUnicodeChar (page does not exist)">Kernel/RtlDowncaseUnicodeChar</a>
+</td>
+<td>275
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlDowncaseUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlDowncaseUnicodeString (page does not exist)">Kernel/RtlDowncaseUnicodeString</a>
+</td>
+<td>276
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlEnterCriticalSection&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlEnterCriticalSection (page does not exist)">Kernel/RtlEnterCriticalSection</a>
+</td>
+<td>277
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlEnterCriticalSectionAndRegion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlEnterCriticalSectionAndRegion (page does not exist)">Kernel/RtlEnterCriticalSectionAndRegion</a>
+</td>
+<td>278
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlEqualString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlEqualString (page does not exist)">Kernel/RtlEqualString</a>
+</td>
+<td>279
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlEqualUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlEqualUnicodeString (page does not exist)">Kernel/RtlEqualUnicodeString</a>
+</td>
+<td>280
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlExtendedIntegerMultiply&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlExtendedIntegerMultiply (page does not exist)">Kernel/RtlExtendedIntegerMultiply</a>
+</td>
+<td>281
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/RtlExtendedLargeIntegerDivide" title="Kernel/RtlExtendedLargeIntegerDivide">Kernel/RtlExtendedLargeIntegerDivide</a>
+</td>
+<td>282
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlExtendedMagicDivide&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlExtendedMagicDivide (page does not exist)">Kernel/RtlExtendedMagicDivide</a>
+</td>
+<td>283
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlFillMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlFillMemory (page does not exist)">Kernel/RtlFillMemory</a>
+</td>
+<td>284
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlFillMemoryUlong&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlFillMemoryUlong (page does not exist)">Kernel/RtlFillMemoryUlong</a>
+</td>
+<td>285
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlFreeAnsiString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlFreeAnsiString (page does not exist)">Kernel/RtlFreeAnsiString</a>
+</td>
+<td>286
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlFreeUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlFreeUnicodeString (page does not exist)">Kernel/RtlFreeUnicodeString</a>
+</td>
+<td>287
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlGetCallersAddress&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlGetCallersAddress (page does not exist)">Kernel/RtlGetCallersAddress</a>
+</td>
+<td>288
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlInitAnsiString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlInitAnsiString (page does not exist)">Kernel/RtlInitAnsiString</a>
+</td>
+<td>289
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlInitUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlInitUnicodeString (page does not exist)">Kernel/RtlInitUnicodeString</a>
+</td>
+<td>290
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlInitializeCriticalSection&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlInitializeCriticalSection (page does not exist)">Kernel/RtlInitializeCriticalSection</a>
+</td>
+<td>291
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlIntegerToChar&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlIntegerToChar (page does not exist)">Kernel/RtlIntegerToChar</a>
+</td>
+<td>292
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlIntegerToUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlIntegerToUnicodeString (page does not exist)">Kernel/RtlIntegerToUnicodeString</a>
+</td>
+<td>293
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlLeaveCriticalSection&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlLeaveCriticalSection (page does not exist)">Kernel/RtlLeaveCriticalSection</a>
+</td>
+<td>294
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlLeaveCriticalSectionAndRegion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlLeaveCriticalSectionAndRegion (page does not exist)">Kernel/RtlLeaveCriticalSectionAndRegion</a>
+</td>
+<td>295
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlLowerChar&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlLowerChar (page does not exist)">Kernel/RtlLowerChar</a>
+</td>
+<td>296
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlMapGenericMask&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlMapGenericMask (page does not exist)">Kernel/RtlMapGenericMask</a>
+</td>
+<td>297
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlMoveMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlMoveMemory (page does not exist)">Kernel/RtlMoveMemory</a>
+</td>
+<td>298
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlMultiByteToUnicodeN&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlMultiByteToUnicodeN (page does not exist)">Kernel/RtlMultiByteToUnicodeN</a>
+</td>
+<td>299
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlMultiByteToUnicodeSize&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlMultiByteToUnicodeSize (page does not exist)">Kernel/RtlMultiByteToUnicodeSize</a>
+</td>
+<td>300
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlNtStatusToDosError&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlNtStatusToDosError (page does not exist)">Kernel/RtlNtStatusToDosError</a>
+</td>
+<td>301
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlRaiseException&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlRaiseException (page does not exist)">Kernel/RtlRaiseException</a>
+</td>
+<td>302
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlRaiseStatus&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlRaiseStatus (page does not exist)">Kernel/RtlRaiseStatus</a>
+</td>
+<td>303
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlTimeFieldsToTime&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlTimeFieldsToTime (page does not exist)">Kernel/RtlTimeFieldsToTime</a>
+</td>
+<td>304
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlTimeToTimeFields&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlTimeToTimeFields (page does not exist)">Kernel/RtlTimeToTimeFields</a>
+</td>
+<td>305
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlTryEnterCriticalSection&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlTryEnterCriticalSection (page does not exist)">Kernel/RtlTryEnterCriticalSection</a>
+</td>
+<td>306
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUlongByteSwap&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUlongByteSwap (page does not exist)">Kernel/RtlUlongByteSwap</a>
+</td>
+<td>307
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUnicodeStringToAnsiString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUnicodeStringToAnsiString (page does not exist)">Kernel/RtlUnicodeStringToAnsiString</a>
+</td>
+<td>308
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUnicodeStringToInteger&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUnicodeStringToInteger (page does not exist)">Kernel/RtlUnicodeStringToInteger</a>
+</td>
+<td>309
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUnicodeToMultiByteN&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUnicodeToMultiByteN (page does not exist)">Kernel/RtlUnicodeToMultiByteN</a>
+</td>
+<td>310
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUnicodeToMultiByteSize&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUnicodeToMultiByteSize (page does not exist)">Kernel/RtlUnicodeToMultiByteSize</a>
+</td>
+<td>311
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUnwind&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUnwind (page does not exist)">Kernel/RtlUnwind</a>
+</td>
+<td>312
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUpcaseUnicodeChar&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUpcaseUnicodeChar (page does not exist)">Kernel/RtlUpcaseUnicodeChar</a>
+</td>
+<td>313
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUpcaseUnicodeString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUpcaseUnicodeString (page does not exist)">Kernel/RtlUpcaseUnicodeString</a>
+</td>
+<td>314
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUpcaseUnicodeToMultiByteN&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUpcaseUnicodeToMultiByteN (page does not exist)">Kernel/RtlUpcaseUnicodeToMultiByteN</a>
+</td>
+<td>315
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUpperChar&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUpperChar (page does not exist)">Kernel/RtlUpperChar</a>
+</td>
+<td>316
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUpperString&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUpperString (page does not exist)">Kernel/RtlUpperString</a>
+</td>
+<td>317
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlUshortByteSwap&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlUshortByteSwap (page does not exist)">Kernel/RtlUshortByteSwap</a>
+</td>
+<td>318
+</td>
+<td>fastcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlWalkFrameChain&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlWalkFrameChain (page does not exist)">Kernel/RtlWalkFrameChain</a>
+</td>
+<td>319
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlZeroMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlZeroMemory (page does not exist)">Kernel/RtlZeroMemory</a>
+</td>
+<td>320
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/XboxEEPROMKey" title="Kernel/XboxEEPROMKey">Kernel/XboxEEPROMKey</a>
+</td>
+<td>321
+</td>
+<td>
+</td>
+<td>Variable: XBOX_KEY_DATA
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XboxHardwareInfo&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XboxHardwareInfo (page does not exist)">Kernel/XboxHardwareInfo</a>
+</td>
+<td>322
+</td>
+<td>
+</td>
+<td>Variable: XBOX_HARDWARE_INFO
+</td></tr>
+<tr>
+<td><a href="/Kernel/XboxHDKey" title="Kernel/XboxHDKey">Kernel/XboxHDKey</a>
+</td>
+<td>323
+</td>
+<td>
+</td>
+<td>Variable: XBOX_KEY_DATA
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XboxKrnlVersion&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XboxKrnlVersion (page does not exist)">Kernel/XboxKrnlVersion</a>
+</td>
+<td>324
+</td>
+<td>
+</td>
+<td>Variable: XBOX_KRNL_VERSION
+</td></tr>
+<tr>
+<td><a href="/Kernel/XboxSignatureKey" title="Kernel/XboxSignatureKey">Kernel/XboxSignatureKey</a>
+</td>
+<td>325
+</td>
+<td>
+</td>
+<td>Variable: XBOX_KEY_DATA; modified by active XBE Certificate
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XeImageFileName&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XeImageFileName (page does not exist)">Kernel/XeImageFileName</a>
+</td>
+<td>326
+</td>
+<td>
+</td>
+<td>Variable: OBJECT_STRING
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XeLoadSection&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XeLoadSection (page does not exist)">Kernel/XeLoadSection</a>
+</td>
+<td>327
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XeUnloadSection&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XeUnloadSection (page does not exist)">Kernel/XeUnloadSection</a>
+</td>
+<td>328
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/READ_PORT_BUFFER_UCHAR" title="Kernel/READ PORT BUFFER UCHAR">Kernel/READ_PORT_BUFFER_UCHAR</a>
+</td>
+<td>329
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/READ_PORT_BUFFER_USHORT" title="Kernel/READ PORT BUFFER USHORT">Kernel/READ_PORT_BUFFER_USHORT</a>
+</td>
+<td>330
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/READ_PORT_BUFFER_ULONG" title="Kernel/READ PORT BUFFER ULONG">Kernel/READ_PORT_BUFFER_ULONG</a>
+</td>
+<td>331
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/WRITE_PORT_BUFFER_UCHAR" title="Kernel/WRITE PORT BUFFER UCHAR">Kernel/WRITE_PORT_BUFFER_UCHAR</a>
+</td>
+<td>332
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/WRITE_PORT_BUFFER_USHORT" title="Kernel/WRITE PORT BUFFER USHORT">Kernel/WRITE_PORT_BUFFER_USHORT</a>
+</td>
+<td>333
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/WRITE_PORT_BUFFER_ULONG" title="Kernel/WRITE PORT BUFFER ULONG">Kernel/WRITE_PORT_BUFFER_ULONG</a>
+</td>
+<td>334
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcSHAInit&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcSHAInit (page does not exist)">Kernel/XcSHAInit</a>
+</td>
+<td>335
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcSHAUpdate&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcSHAUpdate (page does not exist)">Kernel/XcSHAUpdate</a>
+</td>
+<td>336
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcSHAFinal&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcSHAFinal (page does not exist)">Kernel/XcSHAFinal</a>
+</td>
+<td>337
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcRC4Key&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcRC4Key (page does not exist)">Kernel/XcRC4Key</a>
+</td>
+<td>338
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcRC4Crypt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcRC4Crypt (page does not exist)">Kernel/XcRC4Crypt</a>
+</td>
+<td>339
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcHMAC&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcHMAC (page does not exist)">Kernel/XcHMAC</a>
+</td>
+<td>340
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcPKEncPublic&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcPKEncPublic (page does not exist)">Kernel/XcPKEncPublic</a>
+</td>
+<td>341
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcPKDecPrivate&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcPKDecPrivate (page does not exist)">Kernel/XcPKDecPrivate</a>
+</td>
+<td>342
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcPKGetKeyLen&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcPKGetKeyLen (page does not exist)">Kernel/XcPKGetKeyLen</a>
+</td>
+<td>343
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcVerifyPKCS1Signature&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcVerifyPKCS1Signature (page does not exist)">Kernel/XcVerifyPKCS1Signature</a>
+</td>
+<td>344
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcModExp&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcModExp (page does not exist)">Kernel/XcModExp</a>
+</td>
+<td>345
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/Kernel/XcDESKeyParity" title="Kernel/XcDESKeyParity">Kernel/XcDESKeyParity</a>
+</td>
+<td>346
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcKeyTable&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcKeyTable (page does not exist)">Kernel/XcKeyTable</a>
+</td>
+<td>347
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcBlockCrypt&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcBlockCrypt (page does not exist)">Kernel/XcBlockCrypt</a>
+</td>
+<td>348
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcBlockCryptCBC&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcBlockCryptCBC (page does not exist)">Kernel/XcBlockCryptCBC</a>
+</td>
+<td>349
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcCryptService&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcCryptService (page does not exist)">Kernel/XcCryptService</a>
+</td>
+<td>350
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XcUpdateCrypto&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XcUpdateCrypto (page does not exist)">Kernel/XcUpdateCrypto</a>
+</td>
+<td>351
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlRip&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlRip (page does not exist)">Kernel/RtlRip</a>
+</td>
+<td>352
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XboxLANKey&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XboxLANKey (page does not exist)">Kernel/XboxLANKey</a>
+</td>
+<td>353
+</td>
+<td>
+</td>
+<td>Variable: XBOX_KEY_DATA; modified by active XBE Certificate
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XboxAlternateSignatureKeys&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XboxAlternateSignatureKeys (page does not exist)">Kernel/XboxAlternateSignatureKeys</a>
+</td>
+<td>354
+</td>
+<td>
+</td>
+<td>Variable: XBOX_KEY_DATA[XBEIMAGE_ALTERNATE_TITLE_ID_COUNT]; modified by active XBE Certificate
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XePublicKeyData&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XePublicKeyData (page does not exist)">Kernel/XePublicKeyData</a>
+</td>
+<td>355
+</td>
+<td>
+</td>
+<td>Variable: UCHAR[XC_PUBLIC_KEYDATA_SIZE]
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalBootSMCVideoMode&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalBootSMCVideoMode (page does not exist)">Kernel/HalBootSMCVideoMode</a>
+</td>
+<td>356
+</td>
+<td>
+</td>
+<td>Variable: ULONG
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IdexChannelObject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IdexChannelObject (page does not exist)">Kernel/IdexChannelObject</a>
+</td>
+<td>357
+</td>
+<td>
+</td>
+<td>Variable: IDE_CHANNEL_OBJECT
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalIsResetOrShutdownPending&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalIsResetOrShutdownPending (page does not exist)">Kernel/HalIsResetOrShutdownPending</a>
+</td>
+<td>358
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IoMarkIrpMustComplete&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IoMarkIrpMustComplete (page does not exist)">Kernel/IoMarkIrpMustComplete</a>
+</td>
+<td>359
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalInitiateShutdown&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalInitiateShutdown (page does not exist)">Kernel/HalInitiateShutdown</a>
+</td>
+<td>360
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlSnprintf&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlSnprintf (page does not exist)">Kernel/RtlSnprintf</a>
+</td>
+<td>361
+</td>
+<td>stdcall
+</td>
+<td>Unused?
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlSprintf&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlSprintf (page does not exist)">Kernel/RtlSprintf</a>
+</td>
+<td>362
+</td>
+<td>stdcall
+</td>
+<td>Unused?
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlVsnprintf&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlVsnprintf (page does not exist)">Kernel/RtlVsnprintf</a>
+</td>
+<td>363
+</td>
+<td>stdcall
+</td>
+<td>Unused?
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/RtlVsprintf&amp;action=edit&amp;redlink=1" class="new" title="Kernel/RtlVsprintf (page does not exist)">Kernel/RtlVsprintf</a>
+</td>
+<td>364
+</td>
+<td>stdcall
+</td>
+<td>Unused?
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalEnableSecureTrayEject&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalEnableSecureTrayEject (page does not exist)">Kernel/HalEnableSecureTrayEject</a>
+</td>
+<td>365
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/HalWriteSMCScratchRegister&amp;action=edit&amp;redlink=1" class="new" title="Kernel/HalWriteSMCScratchRegister (page does not exist)">Kernel/HalWriteSMCScratchRegister</a>
+</td>
+<td>366
+</td>
+<td>stdcall
+</td>
+<td>
+</td></tr>
+<tr>
+<td>
+</td>
+<td>367
+</td>
+<td>
+</td>
+<td>Unused?
+</td></tr>
+<tr>
+<td>
+</td>
+<td>368
+</td>
+<td>
+</td>
+<td>Unused?
+</td></tr>
+<tr>
+<td>
+</td>
+<td>369
+</td>
+<td>
+</td>
+<td>Unused?
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XProfpControl&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XProfpControl (page does not exist)">Kernel/XProfpControl</a>
+</td>
+<td>370
+</td>
+<td>
+</td>
+<td>Profiling-enabled builds only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/XProfpGetData&amp;action=edit&amp;redlink=1" class="new" title="Kernel/XProfpGetData (page does not exist)">Kernel/XProfpGetData</a>
+</td>
+<td>371
+</td>
+<td>
+</td>
+<td>Profiling-enabled builds only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IrtClientInitFast&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IrtClientInitFast (page does not exist)">Kernel/IrtClientInitFast</a>
+</td>
+<td>372
+</td>
+<td>
+</td>
+<td>Profiling-enabled builds only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/IrtSweep&amp;action=edit&amp;redlink=1" class="new" title="Kernel/IrtSweep (page does not exist)">Kernel/IrtSweep</a>
+</td>
+<td>373
+</td>
+<td>
+</td>
+<td>Profiling-enabled builds only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmDbgAllocateMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmDbgAllocateMemory (page does not exist)">Kernel/MmDbgAllocateMemory</a>
+</td>
+<td>374
+</td>
+<td>stdcall
+</td>
+<td>Devkits only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmDbgFreeMemory&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmDbgFreeMemory (page does not exist)">Kernel/MmDbgFreeMemory</a>
+</td>
+<td>375
+</td>
+<td>stdcall
+</td>
+<td>Devkits only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmDbgQueryAvailablePages&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmDbgQueryAvailablePages (page does not exist)">Kernel/MmDbgQueryAvailablePages</a>
+</td>
+<td>376
+</td>
+<td>stdcall
+</td>
+<td>Devkits only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmDbgReleaseAddress&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmDbgReleaseAddress (page does not exist)">Kernel/MmDbgReleaseAddress</a>
+</td>
+<td>377
+</td>
+<td>stdcall
+</td>
+<td>Devkits only!
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Kernel/MmDbgWriteCheck&amp;action=edit&amp;redlink=1" class="new" title="Kernel/MmDbgWriteCheck (page does not exist)">Kernel/MmDbgWriteCheck</a>
+</td>
+<td>378
+</td>
+<td>stdcall
+</td>
+<td>Devkits only!
+</td></tr></table>
+
+<!-- 
+NewPP limit report
+Cached time: 20260908163247
+Cache expiry: 86400
+Dynamic content: false
+CPU time usage: 0.170 seconds
+Real time usage: 0.202 seconds
+Preprocessor visited node count: 44/1000000
+Preprocessor generated node count: 85/1000000
+Post‐expand include size: 253/2097152 bytes
+Template argument size: 73/2097152 bytes
+Highest expansion depth: 2/40
+Expensive parser function count: 0/100
+-->
+
+<!-- 
+Transclusion expansion time report (%,ms,calls,template)
+100.00%   26.025      1 - -total
+ 50.56%   13.157      1 - Template:Citation_needed
+ 48.30%   12.571      1 - Template:FIXME
+-->
+
+<!-- Saved in parser cache with key bitnami_mediawiki:pcache:idhash:3678-0!*!0!!en!*!* and timestamp 20260908163246 and revision id 6596
+ -->
+</div>					<div class="printfooter">
+						Retrieved from "<a dir="ltr" href="https://xboxdevwiki.net/index.php?title=Kernel&amp;oldid=6596">https://xboxdevwiki.net/index.php?title=Kernel&amp;oldid=6596</a>"					</div>
+				<div id="catlinks" class="catlinks catlinks-allhidden" data-mw="interface"></div>				<div class="visualClear"></div>
+							</div>
+		</div>
+		<div id="mw-navigation">
+			<h2>Navigation menu</h2>
+
+			<div id="mw-head">
+									<div id="p-personal" role="navigation" class="" aria-labelledby="p-personal-label">
+						<h3 id="p-personal-label">Personal tools</h3>
+						<ul>
+							<li id="pt-createaccount"><a href="/index.php?title=Special:CreateAccount&amp;returnto=Kernel" title="You are encouraged to create an account and log in; however, it is not mandatory">Create account</a></li><li id="pt-login"><a href="/index.php?title=Special:UserLogin&amp;returnto=Kernel" title="You are encouraged to log in; however, it is not mandatory [o]" accesskey="o">Log in</a></li>						</ul>
+					</div>
+									<div id="left-navigation">
+										<div id="p-namespaces" role="navigation" class="vectorTabs" aria-labelledby="p-namespaces-label">
+						<h3 id="p-namespaces-label">Namespaces</h3>
+						<ul>
+															<li  id="ca-nstab-main" class="selected"><span><a href="/Kernel"  title="View the content page [c]" accesskey="c">Page</a></span></li>
+															<li  id="ca-talk" class="new"><span><a href="/index.php?title=Talk:Kernel&amp;action=edit&amp;redlink=1"  title="Discussion about the content page [t]" accesskey="t" rel="discussion">Discussion</a></span></li>
+													</ul>
+					</div>
+										<div id="p-variants" role="navigation" class="vectorMenu emptyPortlet" aria-labelledby="p-variants-label">
+												<h3 id="p-variants-label">
+							<span>Variants</span><a href="#"></a>
+						</h3>
+
+						<div class="menu">
+							<ul>
+															</ul>
+						</div>
+					</div>
+									</div>
+				<div id="right-navigation">
+										<div id="p-views" role="navigation" class="vectorTabs" aria-labelledby="p-views-label">
+						<h3 id="p-views-label">Views</h3>
+						<ul>
+															<li id="ca-view" class="selected"><span><a href="/Kernel" >Read</a></span></li>
+															<li id="ca-viewsource"><span><a href="/index.php?title=Kernel&amp;action=edit"  title="This page is protected.&#10;You can view its source [e]" accesskey="e">View source</a></span></li>
+															<li id="ca-history" class="collapsible"><span><a href="/index.php?title=Kernel&amp;action=history"  title="Past revisions of this page [h]" accesskey="h">View history</a></span></li>
+													</ul>
+					</div>
+										<div id="p-cactions" role="navigation" class="vectorMenu emptyPortlet" aria-labelledby="p-cactions-label">
+						<h3 id="p-cactions-label"><span>More</span><a href="#"></a></h3>
+
+						<div class="menu">
+							<ul>
+															</ul>
+						</div>
+					</div>
+										<div id="p-search" role="search">
+						<h3>
+							<label for="searchInput">Search</label>
+						</h3>
+
+						<form action="/index.php" id="searchform">
+							<div id="simpleSearch">
+							<input type="search" name="search" placeholder="Search xboxdevwiki" title="Search xboxdevwiki [f]" accesskey="f" id="searchInput"/><input type="hidden" value="Special:Search" name="title"/><input type="submit" name="fulltext" value="Search" title="Search the pages for this text" id="mw-searchButton" class="searchButton mw-fallbackSearchButton"/><input type="submit" name="go" value="Go" title="Go to a page with this exact name if it exists" id="searchButton" class="searchButton"/>							</div>
+						</form>
+					</div>
+									</div>
+			</div>
+			<div id="mw-panel">
+				<div id="p-logo" role="banner"><a class="mw-wiki-logo" href="/Main_Page"  title="Visit the main page"></a></div>
+						<div class="portal" role="navigation" id='p-navigation' aria-labelledby='p-navigation-label'>
+			<h3 id='p-navigation-label'>Navigation</h3>
+
+			<div class="body">
+									<ul>
+						<li id="n-mainpage-description"><a href="/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li><li id="n-recentchanges"><a href="/Special:RecentChanges" title="A list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li><li id="n-randompage"><a href="/Special:Random" title="Load a random page [x]" accesskey="x">Random page</a></li><li id="n-help"><a href="https://www.mediawiki.org/wiki/Special:MyLanguage/Help:Contents" title="The place to find out">Help</a></li>					</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id='p-tb' aria-labelledby='p-tb-label'>
+			<h3 id='p-tb-label'>Tools</h3>
+
+			<div class="body">
+									<ul>
+						<li id="t-whatlinkshere"><a href="/Special:WhatLinksHere/Kernel" title="A list of all wiki pages that link here [j]" accesskey="j">What links here</a></li><li id="t-recentchangeslinked"><a href="/Special:RecentChangesLinked/Kernel" rel="nofollow" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li><li id="t-specialpages"><a href="/Special:SpecialPages" title="A list of all special pages [q]" accesskey="q">Special pages</a></li><li id="t-print"><a href="/index.php?title=Kernel&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li><li id="t-permalink"><a href="/index.php?title=Kernel&amp;oldid=6596" title="Permanent link to this revision of the page">Permanent link</a></li><li id="t-info"><a href="/index.php?title=Kernel&amp;action=info" title="More information about this page">Page information</a></li>					</ul>
+							</div>
+		</div>
+				</div>
+		</div>
+		<div id="footer" role="contentinfo">
+							<ul id="footer-info">
+											<li id="footer-info-lastmod"> This page was last modified on 21 October 2018, at 17:23.</li>
+									</ul>
+							<ul id="footer-places">
+											<li id="footer-places-privacy"><a href="/xboxdevwiki:Privacy_policy" title="xboxdevwiki:Privacy policy">Privacy policy</a></li>
+											<li id="footer-places-about"><a href="/xboxdevwiki:About" title="xboxdevwiki:About">About xboxdevwiki</a></li>
+											<li id="footer-places-disclaimer"><a href="/xboxdevwiki:General_disclaimer" title="xboxdevwiki:General disclaimer">Disclaimers</a></li>
+									</ul>
+										<ul id="footer-icons" class="noprint">
+											<li id="footer-poweredbyico">
+							<a href="//www.mediawiki.org/"><img src="/resources/assets/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" srcset="/resources/assets/poweredby_mediawiki_132x47.png 1.5x, /resources/assets/poweredby_mediawiki_176x62.png 2x" width="88" height="31"/></a>						</li>
+									</ul>
+						<div style="clear:both"></div>
+		</div>
+		<script>(window.RLQ=window.RLQ||[]).push(function(){mw.loader.load(["mediawiki.toc","mediawiki.action.view.postEdit","site","mediawiki.user","mediawiki.hidpi","mediawiki.page.ready","mediawiki.searchSuggest"]);});</script><script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgBackendResponseTime":402});});</script>
+	</body>
+</html>

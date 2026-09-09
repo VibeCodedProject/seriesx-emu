@@ -1,0 +1,23 @@
+tests/lithiumx.xbe
+==================
+
+Real homebrew Xbox executable used as a verification fixture for the
+XBE loader (tests/test_xbe_loader.cpp).
+
+Provenance:
+  LithiumX v0.9.7 release zip, file bin/default.xbe
+  https://github.com/Ryzee119/LithiumX/releases/download/v0.9.7/LithiumX.zip
+  (sha256 of the zip is recorded in the worklog when the fixture was
+  vendored; the XBE itself is unmodified)
+
+License:
+  LithiumX is MIT licensed (Copyright (c) 2022 Ryan Wendland), which
+  permits redistribution; this attribution file accompanies the binary.
+  Full license text: https://github.com/Ryzee119/LithiumX/blob/master/LICENSE
+
+Why this file:
+  It is an UNMODIFIED binary produced by the real nxdk toolchain, so the
+  loader tests verify the parser against genuine toolchain output rather
+  than only against synthetic data. Expected field values were
+  independently dumped with pyxbe (github.com/mborgerson/pyxbe, MIT) and
+  are asserted byte-for-byte by the test.

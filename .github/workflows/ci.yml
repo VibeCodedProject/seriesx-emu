@@ -1,0 +1,58 @@
+# CI for seriesx-emu (runs when this repository is pushed to GitHub).
+# Two jobs: plain build+test, and an ASan+UBSan build+test. GPU-dependent
+# tests self-skip (exit 77) because GitHub runners have no Vulkan device.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain and Vulkan loader/headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ libvulkan-dev
+
+      - name: Optional Unicorn CPU core (user wheel)
+        run: pip install --user unicorn
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build -j"$(nproc)"
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain and Vulkan loader/headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ libvulkan-dev
+
+      - name: Optional Unicorn CPU core (user wheel)
+        run: pip install --user unicorn
+
+      - name: Configure (ASan + UBSan + LeakSanitizer)
+        run: |
+          cmake -B build-asan -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+
+      - name: Build
+        run: cmake --build build-asan -j"$(nproc)"
+
+      - name: Test (leak detection on)
+        env:
+          ASAN_OPTIONS: detect_leaks=1
+        run: ctest --test-dir build-asan --output-on-failure
