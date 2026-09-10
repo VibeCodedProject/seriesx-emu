@@ -1,4 +1,6 @@
 #include <cstdio>
+#include <cstdlib>
+#include <string>
 #include <vector>
 
 #include "cpu_native.h"
@@ -12,8 +14,10 @@
 #include "vulkan_buffer.h"
 #include "vulkan_heaps.h"
 #include "vulkan_image.h"
+#include "vulkan_present.h"
 #include "xbe_loader.h"
 #include "xbox_audio.h"
+#include "xbox_display.h"
 #include "xbox_input.h"
 #include "xbox_krnl.h"
 #include "xbox_sys.h"
@@ -23,7 +27,21 @@
 #include "xbox_cpu.h"  // optional Unicorn x86-32 CPU core (GPL-2.0 dep)
 #endif
 
-int main() {
+int main(int argc, char** argv) {
+  bool want_window = false;
+  uint32_t win_frames = 600;
+  for (int i = 1; i < argc; ++i) {
+    const std::string a = argv[i] ? argv[i] : "";
+    if (a == "--help" || a == "-h") {
+      std::puts("usage: seriesx-emu [--window|-w] [--frames|-n N] [--help]");
+      return 0;
+    }
+    if (a == "--window" || a == "-w") want_window = true;
+    if ((a == "--frames" || a == "-n") && i + 1 < argc) {
+      const long v = std::atol(argv[++i]);
+      win_frames = static_cast<uint32_t>(v < 0 ? 0 : v);
+    }
+  }
   VulkanHeapInfo h;
   if (query_vulkan_heaps(h)) {
     std::printf("vulkan gpu=%s\n  vram=%.2f GiB gtt=%.2f GiB rebar=%d fits10_6=%d\n",
@@ -196,6 +214,59 @@ int main() {
                 ok, (unsigned long long)xgpu.frame_id(),
                 (unsigned long long)xgpu.fence_signalled(),
                 xgpu.last_log().c_str());
+    // Display: 32x32 frontbuffer cleared to magenta, Flip snapshots it.
+    XboxDisplay disp(&mem);
+    if (disp.set_framebuffer(0x80000, 32, 32)) {
+      XboxPacket clear{.type = XboxPktType::ClearRenderTarget,
+                       .dst = {.gpa = 0x80000,
+                               .heap = XboxHeapClass::GpuOptimal,
+                               .size = 32 * 32 * 4},
+                       .color = {0xFF, 0x00, 0xFF, 0xFF},
+                       .rt_width = 32,
+                       .rt_height = 32};
+      if (xgpu.submit_xbox(clear) && disp.on_flip())
+        std::printf("display fb=32x32 presented=%llu checksum=0x%llx\n",
+                    (unsigned long long)disp.frames_presented(),
+                    (unsigned long long)disp.checksum());
+    }
+    // Visible window: --window opens a real 640x480 GLFW+swapchain
+    // window and animates the guest frontbuffer through it (FIFO
+    // vsync, closes on [X] or after --frames N). Headless default
+    // stays window-free for CI.
+    if (want_window) {
+      constexpr uint32_t W = 640, H = 480;
+      mem.commit_range(0x100000, static_cast<size_t>(W) * H * 4);
+      XboxDisplay wdisp(&mem);
+      if (!wdisp.set_framebuffer(0x100000, W, H)) {
+        std::puts("window: framebuffer setup failed");
+      } else {
+        VulkanPresenter win;
+        if (!win.init(W, H, "seriesx-emu", true)) {
+          std::puts("window unavailable (no GLFW/GPU/display server)");
+        } else {
+          for (uint32_t f = 0; f < win_frames && !win.should_close();
+               ++f) {
+            XboxPacket anim{.type = XboxPktType::ClearRenderTarget,
+                            .dst = {.gpa = 0x100000,
+                                    .heap = XboxHeapClass::GpuOptimal,
+                                    .size = W * H * 4},
+                            .color = {static_cast<uint8_t>(f & 0xFF),
+                                      0x00,
+                                      static_cast<uint8_t>(255 - (f & 0xFF)),
+                                      0xFF},
+                            .rt_width = W,
+                            .rt_height = H};
+            xgpu.submit_xbox(anim);
+            wdisp.on_flip();
+            if (!win.upload_and_present(wdisp.frame(), W, H)) break;
+            win.poll();
+          }
+          std::printf("window presents=%llu errors=%llu\n",
+                      (unsigned long long)win.presents(),
+                      (unsigned long long)win.errors());
+        }
+      }
+    }
   }
 
   // Real guest-thread scheduling: ucontext fibers with genuine

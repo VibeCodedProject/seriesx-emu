@@ -55,6 +55,26 @@ void barrier_stage(VkImageLayout old_l, VkImageLayout new_l,
     src_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     dst_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     dst_access = VK_ACCESS_SHADER_READ_BIT;
+  } else if (old_l == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
+             new_l == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+    // Clear-then-sample without an intermediate copy (the clear path).
+    src_access = VK_ACCESS_TRANSFER_WRITE_BIT;
+    src_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    dst_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    dst_access = VK_ACCESS_SHADER_READ_BIT;
+  } else if (old_l == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL &&
+             new_l == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) {
+    // Re-copy after a clear left the image sampled (the copy path).
+    src_access = VK_ACCESS_SHADER_READ_BIT;
+    src_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    dst_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    dst_access = VK_ACCESS_TRANSFER_READ_BIT;
+  } else if (old_l == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL &&
+             new_l == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+    // Re-clear after a copy left the image as transfer source.
+    src_access = VK_ACCESS_TRANSFER_READ_BIT;
+    src_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    dst_access = VK_ACCESS_TRANSFER_WRITE_BIT;
   } else if (new_l == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
     src_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     dst_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;

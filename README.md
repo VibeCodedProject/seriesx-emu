@@ -4,8 +4,8 @@
 
 An original-Xbox (x86-32) emulator *foundation*: a real XBE binary loader, a
 real cooperative fiber scheduler, a reverse-engineered `xboxkrnl.exe` kernel
-HLE, and an optional Unicorn-based x86-32 CPU core that actually executes
-guest machine code.
+HLE, an NV2A vertex-shader + register-combiner HLE, and an optional
+Unicorn-based x86-32 CPU core that actually executes guest machine code.
 
 > **Name warning:** the repository is called `seriesx-emu` for historical
 > reasons (it started as a Series-X memory-model sketch). Every Xbox-specific
@@ -24,7 +24,9 @@ What works today, each backed by tests:
 | Scheduler (`cpu_sched`) | Real ucontext-based fiber switching, virtual-time sleeps, blocking primitives, deadlock detection |
 | Kernel HLE (`xbox_krnl`) | 371-export table generated from nxdk's `xboxkrnl.exe.def`; **58 exports implemented** with NT-faithful semantics (events, mutants, semaphores, system threads, multi-wait, critical sections, contiguous memory, interlocked, time, DbgPrint); 42/103 of LithiumX's real imports served |
 | Guest CPU (`xbox_cpu`, optional) | Unicorn 2 TCG executes real XBE code; kernel calls cross the same HLE; per-fiber TEB/TLS on real instructions; every stop is a named fault record |
-| GPU | Stub + Vulkan heap queries only. **No NV2A.** Tests skip honestly when no Vulkan device exists |
+| NV2A shaders (`xbox_vs`, `xbox_rc`) | DX8-class vertex-shader microcode decoded, validated and interpreted; the register-combiner (pixel) machine evaluated on the CPU. No rasterizer, no command-stream front end |
+| GPU / Vulkan remap (`gpu_stub`, `gpu_batch`) | Xbox-semantic GPU packets, heap-class checks and root-signature batches; Vulkan tests skip honestly when no device exists |
+| Display (`xbox_display`, `vulkan_present`, optional) | Guest-RAM frontbuffer registry + Flip snapshots (checksum/PPM, headless); a real GLFW+Vulkan swapchain presents with FIFO vsync. The presenter is a dependency-free stub without GLFW; tests skip honestly without a device or display server |
 
 Running the LithiumX entry point executes real instructions through the
 nxdk CRT startup — it creates the CRT mutex via `NtCreateMutant` and only
@@ -48,6 +50,11 @@ built and run; without it, everything else is identical:
 pip install --user unicorn    # provides headers (vendored) + libunicorn.so.2
 cmake -B build ...            # CMake prints "Unicorn CPU core: ..." when found
 ```
+
+GLFW is also **optional** (`libglfw3-dev` / `find_package(glfw3)`). With it,
+`--window` opens a real Vulkan swapchain on the guest frontbuffer; without it
+the presenter compiles to a stub whose `init()` returns false and the rest of
+the emulator is unchanged.
 
 Expected test result: `100% tests passed` — GPU-dependent tests exit with
 code 77 (ctest "Skipped") on machines without a Vulkan device.
@@ -104,6 +111,11 @@ each XBE); this negative result is why the HLE has no fabricated heap API.
 - TLS callbacks are recorded, not dispatched (dispatching them is guest-code
   execution, future CPU-core work).
 - Alertable waits behave as non-alertable (no APCs).
+- The NV2A shader HLE covers vertex microcode and register combiners only:
+  texture shaders (samplers) are supplied by the caller, transcendentals are
+  computed exactly where the hardware approximates, and there is no
+  rasterizer or command-stream (pushbuffer) front end. The register-combiner
+  MUX LSB mode is rejected rather than guessed (the wiki marks it FIXME).
 
 ## License
 

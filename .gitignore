@@ -6,6 +6,12 @@ build/
 build-*/
 out/
 
+# Local source archives / snapshots
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
 # Compiler / linker artifacts
 *.o
 *.obj

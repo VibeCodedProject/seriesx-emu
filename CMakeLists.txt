@@ -49,6 +49,8 @@ add_library(seriesx_core STATIC
   src/fiber_tls.cpp
   src/xbox_krnl.cpp
   src/gpu_stub.cpp
+  src/xbox_vs.cpp
+  src/xbox_rc.cpp
   src/vulkan_heaps.cpp
   src/vulkan_alloc.cpp
   src/vulkan_buffer.cpp
@@ -59,9 +61,24 @@ add_library(seriesx_core STATIC
   src/xbox_sys.cpp
   src/xbox_input.cpp
   src/xbox_audio.cpp
+  src/xbox_display.cpp
+  src/vulkan_present.cpp
 )
 target_include_directories(seriesx_core PUBLIC include)
 target_link_libraries(seriesx_core PUBLIC Vulkan::Vulkan)
+
+# ---------------------------------------------------------------------------
+# Optional display window (GLFW + Vulkan swapchain). Like Unicorn: when GLFW
+# is absent the presenter compiles as a stub whose init() returns false.
+# ---------------------------------------------------------------------------
+find_package(glfw3 QUIET)
+if(glfw3_FOUND)
+  message(STATUS "Display window: glfw3 found, swapchain presenter enabled")
+  target_compile_definitions(seriesx_core PUBLIC DISPLAY_GLFW_ENABLED)
+  target_link_libraries(seriesx_core PUBLIC glfw)
+else()
+  message(STATUS "Display window: glfw3 NOT found, presenter is a stub")
+endif()
 
 # ---------------------------------------------------------------------------
 # Optional Unicorn x86-32 CPU core (guest execution). Unicorn is GPL-2.0
@@ -163,6 +180,15 @@ target_link_libraries(test_xbox_gpu PRIVATE seriesx_core)
 add_executable(test_xbox_sys tests/test_xbox_sys.cpp)
 target_link_libraries(test_xbox_sys PRIVATE seriesx_core)
 
+add_executable(test_xbox_shaders tests/test_xbox_shaders.cpp)
+target_link_libraries(test_xbox_shaders PRIVATE seriesx_core)
+
+add_executable(test_xbox_display tests/test_xbox_display.cpp)
+target_link_libraries(test_xbox_display PRIVATE seriesx_core)
+
+add_executable(test_vulkan_present tests/test_vulkan_present.cpp)
+target_link_libraries(test_vulkan_present PRIVATE seriesx_core)
+
 enable_testing()
 add_test(NAME mem_map COMMAND test_mem)
 add_test(NAME cpu_hle COMMAND test_cpu)
@@ -181,6 +207,9 @@ add_test(NAME vfs_io COMMAND test_vfs_io)
 add_test(NAME gpu_batch COMMAND test_gpu_batch)
 add_test(NAME xbox_gpu COMMAND test_xbox_gpu)
 add_test(NAME xbox_sys COMMAND test_xbox_sys)
+add_test(NAME xbox_shaders COMMAND test_xbox_shaders)
+add_test(NAME xbox_display COMMAND test_xbox_display)
+add_test(NAME vulkan_present COMMAND test_vulkan_present)
 
 # Every test must finish in 60s (catches condvar/scheduler deadlocks).
 # GPU-dependent tests exit 77 when no Vulkan device exists -> "Skipped".
@@ -188,7 +217,7 @@ add_test(NAME xbox_sys COMMAND test_xbox_sys)
 # sanitized vs ~7s native), so sanitizer builds get a roomier deadline.
 set(_all_tests mem_map cpu_hle cpu_sched xbe_loader fiber_tls xbox_krnl
                vulkan_heaps vulkan_alloc vulkan_buffer vulkan_image vfs_io
-               gpu_batch xbox_gpu xbox_sys)
+               gpu_batch xbox_gpu xbox_sys xbox_display vulkan_present)
 if(UNICORN_ENABLED)
   list(APPEND _all_tests xbox_cpu)
 endif()
